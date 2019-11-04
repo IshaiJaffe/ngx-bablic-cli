@@ -14,9 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/tar": "^4.0.3",
     "fs-extra": "^8.1.0",
-    "fstream": "^1.0.12",
     "request": "^2.88.0",
     "tar": "^5.0.5",
     "yargs": "^14.2.0"

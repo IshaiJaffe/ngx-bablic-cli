@@ -2,10 +2,7 @@ import {execShellCommand, jsonPost, postStream} from "./common";
 import {createReadStream, createWriteStream} from "fs";
 import * as os from "os";
 
-const fstream = require('fstream');
 import * as tar from 'tar';
-import * as zlib from 'zlib';
-import {RequestResponse} from "request";
 
 export interface EditorOptions extends BaseOptions {
     site: string;
