@@ -74,11 +74,11 @@ export async function openEditor(params: OpenEditorOptions): Promise<void> {
     await promise;
     console.error("Generated editor file successfully");
     const tempDir = os.tmpdir() + `/${params.site}.editor/`;
-    let command = "ng build";
+    let command = `ng build --baseHref /ng/tests/${params.site}/`;
     if (params.prod) {
         command += " --prod";
     }
-    command += ` --i18n-file ${tempFile} --i18n-format xlf --i18n-locale fr --output-path ${tempDir}`;
+    command += ` --aot true --i18nFile ${tempFile} --i18nFormat xlf --i18nLocale fr --outputPath ${tempDir}`;
     await execShellCommand(command);
     const tempTar = os.tmpdir() + `/${params.site}.editor.tar.gs`;
     const tempTarWriter = createWriteStream(tempTar);
@@ -92,8 +92,12 @@ export async function openEditor(params: OpenEditorOptions): Promise<void> {
     const tarReader = createReadStream(tempTar);
     const bundleResponse = await postStream(`site/${params.site}/i18n/angular/bundle`, tarReader);
     const readPromise = new Promise<void>((resolve, reject) => {
+        const chunks: string[] = [];
         bundleResponse.on("readable", () => {
-            const str = bundleResponse.read().toString();
+            chunks.push(bundleResponse.read().toString());
+        });
+        bundleResponse.on("end", () => {
+            const str = chunks.join("");
             const obj = JSON.parse(str);
             console.error("Open browsre in URL:", obj.url);
             resolve();
