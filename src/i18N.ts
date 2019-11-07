@@ -74,11 +74,11 @@ export async function openEditor(params: OpenEditorOptions): Promise<void> {
     await promise;
     console.error("Generated editor file successfully");
     const tempDir = os.tmpdir() + `/${params.site}.editor/`;
-    let command = `ng build --baseHref /ng/tests/${params.site}/`;
+    let command = `ng build`;
     if (params.prod) {
         command += " --prod";
     }
-    command += ` --aot true --i18nFile ${tempFile} --i18nFormat xlf --i18nLocale fr --outputPath ${tempDir}`;
+    command += ` --aot true --i18nFile ${tempFile} --i18nFormat xlf --i18nLocale editor --outputPath ${tempDir}`;
     await execShellCommand(command);
     const tempTar = os.tmpdir() + `/${params.site}.editor.tar.gs`;
     const tempTarWriter = createWriteStream(tempTar);
