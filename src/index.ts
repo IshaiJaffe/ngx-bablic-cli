@@ -30,7 +30,7 @@ yargs
         }
         runCommand(createSite(params));
     })
-    .command<EditorOptions>("editor [site]", "Generate the editor localization file", (builder) => {
+    .command<EditorOptions>("create-editor [site]", "Generate the editor localization file", (builder) => {
         builder.option("outFile", {
             type: "string",
             alias: ['out-file', 'o'],
@@ -41,10 +41,14 @@ yargs
             alias: ['source-file', 's'],
             default: "./messages.xlf",
             describe: "Source xliff file path"
-        }).positional("site", {
-            type: "string",
-            describe: "Unique site name"
-        }).demand("site");
+        }).option("skipXi18n", {
+            type: "boolean",
+            default: false,
+        })
+            .positional("site", {
+                type: "string",
+                describe: "Unique site name"
+            }).demand("site");
     }, (params) => {
         command = true;
         if (params.verbose) {
@@ -52,7 +56,7 @@ yargs
         }
         runCommand(createEditor(params));
     })
-    .command<OpenEditorOptions>("edit [site]", "Open editor", (builder) => {
+    .command<OpenEditorOptions>("open-editor [site]", "Open editor", (builder) => {
         builder
             .option("sourceFile", {
                 type: "string",
@@ -61,6 +65,10 @@ yargs
                 describe: "Source xliff file path"
             })
             .option("prod", {
+                type: "boolean",
+                default: false,
+            })
+            .option("skipXi18n", {
                 type: "boolean",
                 default: false,
             })
@@ -75,7 +83,7 @@ yargs
         }
         runCommand(openEditor(params));
     })
-    .command<LocaleOptions>("translate [site]", "Generate the translated localization file", (builder) => {
+    .command<LocaleOptions>("create-translation [site]", "Generate the translated localization file", (builder) => {
         builder.positional("locale", {
             type: "string",
             describe: "The language to translate to",
@@ -84,6 +92,9 @@ yargs
             alias: ['out-file', 'o'],
             default: "./messages.[locale].xlf",
             describe: "Output xliff file path",
+        }).option("skipXi18n", {
+            type: "boolean",
+            default: false,
         }).option("sourceFile", {
             type: "string",
             alias: ['source-file', 's'],

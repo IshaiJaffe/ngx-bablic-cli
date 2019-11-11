@@ -1,18 +1,26 @@
-import {execShellCommand, jsonPost, postStream} from "./common";
+import {execShellCommand, jsonPost, postStream, saveToken, waitForSigterm} from "./common";
 import {createReadStream, createWriteStream} from "fs";
 import * as os from "os";
+import * as open from "open";
+import * as QueryStringParser from "querystring";
 
 import * as tar from 'tar';
+import {createServer} from "http";
 
 export interface EditorOptions extends BaseOptions {
     site: string;
     outFile: string;
     sourceFile: string;
+    skipXi18n: boolean;
 }
 
 export async function createEditor(params: EditorOptions): Promise<void> {
-    console.error("Updating source localization file");
-    await execShellCommand("ng xi18n --out-file " + params.sourceFile);
+    if (params.skipXi18n) {
+        console.error("Updating source localization file");
+        await execShellCommand("ng", ["xi18n", "--out-file", params.sourceFile]);
+    } else {
+        console.error("skipping update source localization file");
+    }
     console.error("Getting translated localization file");
     const fileReader = createReadStream(params.sourceFile);
     const fileWriter = createWriteStream(params.outFile);
@@ -32,11 +40,16 @@ export interface LocaleOptions extends BaseOptions {
     locale: string;
     outFile: string;
     sourceFile: string;
+    skipXi18n: boolean;
 }
 
 export async function createLocale(params: LocaleOptions): Promise<void> {
-    console.error("Updating source localization file");
-    await execShellCommand("ng xi18n --out-file " + params.sourceFile);
+    if (!params.skipXi18n) {
+        console.error("Updating source localization file");
+        await execShellCommand("ng", ["xi18n", "--out-file", params.sourceFile]);
+    } else {
+        console.error("Skip updating localization file");
+    }
     console.error("Getting translated localization file");
     const fileReader = createReadStream(params.sourceFile);
     const fileWriter = createWriteStream(params.outFile);
@@ -55,11 +68,16 @@ export interface OpenEditorOptions extends BaseOptions {
     site: string;
     sourceFile: string;
     prod?: boolean;
+    skipXi18n?: boolean;
 }
 
 export async function openEditor(params: OpenEditorOptions): Promise<void> {
-    console.error("Updating source localization file");
-    await execShellCommand("ng xi18n --out-file " + params.sourceFile);
+    if (!params.skipXi18n) {
+        console.error("Updating source localization file");
+        await execShellCommand("ng", ["xi18n", "--out-file", params.sourceFile]);
+    } else {
+        console.error("Skip updating source localization file");
+    }
     console.error("Getting translated localization file");
     const fileReader = createReadStream(params.sourceFile);
     const tempFile = os.tmpdir() + `/${params.site}.editor.xlf`;
@@ -74,12 +92,12 @@ export async function openEditor(params: OpenEditorOptions): Promise<void> {
     await promise;
     console.error("Generated editor file successfully");
     const tempDir = os.tmpdir() + `/${params.site}.editor/`;
-    let command = `ng build`;
+    let command: string[] = [`build`];
     if (params.prod) {
-        command += " --prod";
+        command.push(" --prod");
     }
-    command += ` --aot true --i18nFile ${tempFile} --i18nFormat xlf --i18nLocale editor --outputPath ${tempDir}`;
-    await execShellCommand(command);
+    command.push("--aot", "true", "--i18nFile", tempFile,  "--i18nFormat", "xlf", "--i18nLocale", "editor", "--outputPath", tempDir);
+    await execShellCommand("ng", command);
     const tempTar = os.tmpdir() + `/${params.site}.editor.tar.gs`;
     const tempTarWriter = createWriteStream(tempTar);
     tar.c({
@@ -91,6 +109,7 @@ export async function openEditor(params: OpenEditorOptions): Promise<void> {
 
     const tarReader = createReadStream(tempTar);
     const bundleResponse = await postStream(`site/${params.site}/i18n/angular/bundle`, tarReader);
+    let url: string;
     const readPromise = new Promise<void>((resolve, reject) => {
         const chunks: string[] = [];
         bundleResponse.on("readable", () => {
@@ -99,9 +118,31 @@ export async function openEditor(params: OpenEditorOptions): Promise<void> {
         bundleResponse.on("end", () => {
             const str = chunks.join("");
             const obj = JSON.parse(str);
-            console.error("Open browsre in URL:", obj.url);
+            url = obj.url;
+            console.error("Open browser in URL:", obj.url);
             resolve();
         });
     });
     await readPromise;
+    const logInPromise = new Promise<void>((resolve, reject) => {
+        const server = createServer((req, res) => {
+            const qs = req.url.split("?")[1];
+            if (!qs) {
+                return res.end();
+            }
+            const parsed = QueryStringParser.parse(qs);
+            const token = parsed.token;
+            if (!token) {
+                return res.end();
+            }
+            server.close();
+            saveToken(token as string).then(() => {
+                resolve();
+            }, reject);
+        });
+        server.listen(12513);
+    });
+    await open(url);
+    await Promise.race([logInPromise, waitForSigterm()]);
 }
+
