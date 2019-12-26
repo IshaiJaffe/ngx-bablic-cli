@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs';
-import {createSite, InitOptions} from "./createSite";
 import {createEditor, createLocale, EditorOptions, LocaleOptions, openEditor, OpenEditorOptions} from "./i18N";
+import {login, LoginOptions, createSite, InitOptions} from "bablic-i18n";
 
 function runCommand(promise: Promise<void>) {
     promise.then(() => {
@@ -28,7 +28,14 @@ yargs
         if (params.verbose) {
             console.log("Create site", params.name, params.originalLocale);
         }
-        runCommand(createSite(params));
+        runCommand(createSite("angular", params));
+    }).command<LoginOptions>("login", "Login the CLI", (builder) => {},
+    (params) => {
+        command = true;
+        if (params.verbose) {
+            console.log("Opening login");
+        }
+        runCommand(login(params));
     })
     .command<EditorOptions>("create-editor [site]", "Generate the editor localization file", (builder) => {
         builder.option("outFile", {

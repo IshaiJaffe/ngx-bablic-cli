@@ -1,6 +1,6 @@
 {
   "name": "ng-bablic",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -14,10 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bablic-i18n": "^1.0.0",
     "fs-extra": "^8.1.0",
-    "open": "^7.0.0",
-    "request": "^2.88.0",
-    "tar": "^5.0.5",
     "yargs": "^14.2.0"
   },
   "devDependencies": {

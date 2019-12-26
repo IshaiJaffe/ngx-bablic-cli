@@ -1,4 +1,0 @@
-
-interface BaseOptions {
-    verbose?: boolean;
-}
