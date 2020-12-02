@@ -37,32 +37,32 @@ yargs
         }
         runCommand(login(params));
     })
-    .command<EditorOptions>("create-editor [site]", "Generate the editor localization file", (builder) => {
-        builder.option("outFile", {
-            type: "string",
-            alias: ['out-file', 'o'],
-            default: "./editor.xlf",
-            describe: "Output xliff file path",
-        }).option("sourceFile", {
-            type: "string",
-            alias: ['source-file', 's'],
-            default: "./messages.xlf",
-            describe: "Source xliff file path"
-        }).option("skipXi18n", {
-            type: "boolean",
-            default: false,
-        })
-            .positional("site", {
-                type: "string",
-                describe: "Unique site name"
-            }).demand("site");
-    }, (params) => {
-        command = true;
-        if (params.verbose) {
-            console.log("Create editor file", params);
-        }
-        runCommand(createEditor(params));
-    })
+    // .command<EditorOptions>("create-editor [site]", "Generate the editor localization file", (builder) => {
+    //     builder.option("outFile", {
+    //         type: "string",
+    //         alias: ['out-file', 'o'],
+    //         default: "./editor.xlf",
+    //         describe: "Output xliff file path",
+    //     }).option("sourceFile", {
+    //         type: "string",
+    //         alias: ['source-file', 's'],
+    //         default: "./messages.xlf",
+    //         describe: "Source xliff file path"
+    //     }).option("skipXi18n", {
+    //         type: "boolean",
+    //         default: false,
+    //     })
+    //         .positional("site", {
+    //             type: "string",
+    //             describe: "Unique site name"
+    //         }).demand("site");
+    // }, (params) => {
+    //     command = true;
+    //     if (params.verbose) {
+    //         console.log("Create editor file", params);
+    //     }
+    //     runCommand(createEditor(params));
+    // })
     .command<OpenEditorOptions>("open-editor [site]", "Open editor", (builder) => {
         builder
             .option("sourceFile", {
@@ -90,35 +90,35 @@ yargs
         }
         runCommand(openEditor(params));
     })
-    .command<LocaleOptions>("create-translation [site]", "Generate the translated localization file", (builder) => {
-        builder.positional("locale", {
-            type: "string",
-            describe: "The language to translate to",
-        }).option("outFile", {
-            type: "string",
-            alias: ['out-file', 'o'],
-            default: "./messages.[locale].xlf",
-            describe: "Output xliff file path",
-        }).option("skipXi18n", {
-            type: "boolean",
-            default: false,
-        }).option("sourceFile", {
-            type: "string",
-            alias: ['source-file', 's'],
-            default: "./messages.xlf",
-            describe: "Source xliff file path"
-        }).positional("site", {
-            type: "string",
-            describe: "Unique site name"
-        }).demand("site").demand("locale");
-    }, (params) => {
-        command = true;
-        params.outFile = params.outFile.replace("[locale]", params.locale);
-        if (params.verbose) {
-            console.log("Create editor file", params);
-        }
-        runCommand(createLocale(params));
-    })
+    // .command<LocaleOptions>("create-translation [site]", "Generate the translated localization file", (builder) => {
+    //     builder.positional("locale", {
+    //         type: "string",
+    //         describe: "The language to translate to",
+    //     }).option("outFile", {
+    //         type: "string",
+    //         alias: ['out-file', 'o'],
+    //         default: "./messages.[locale].xlf",
+    //         describe: "Output xliff file path",
+    //     }).option("skipXi18n", {
+    //         type: "boolean",
+    //         default: false,
+    //     }).option("sourceFile", {
+    //         type: "string",
+    //         alias: ['source-file', 's'],
+    //         default: "./messages.xlf",
+    //         describe: "Source xliff file path"
+    //     }).positional("site", {
+    //         type: "string",
+    //         describe: "Unique site name"
+    //     }).demand("site").demand("locale");
+    // }, (params) => {
+    //     command = true;
+    //     params.outFile = params.outFile.replace("[locale]", params.locale);
+    //     if (params.verbose) {
+    //         console.log("Create editor file", params);
+    //     }
+    //     runCommand(createLocale(params));
+    // })
     .option('verbose', {
         alias: 'v',
         type: 'boolean',
